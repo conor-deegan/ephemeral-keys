@@ -1,0 +1,4 @@
+- BIP-44 like derivation path?
+    - potentially use the deriviation path but then custom HMAC protocol to generation root level entropy for different key slots?
+- Mutli-device constraints
+- What level of quantum security vs classical security is required?
