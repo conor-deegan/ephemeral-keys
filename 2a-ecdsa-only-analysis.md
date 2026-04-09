@@ -14,6 +14,7 @@
 - **Verification**: `ecrecover` precompile
 - **Recovery signer**: ECDSA key(s), also derived from the HD tree (separate index range or derivation path)
 - **Key reuse tolerance**: ECDSA is not a one-time scheme. Multiple signatures under the same key do not leak the private key.
+- **Key derivation**: Unspecified "BIP-44-like" derivation from root seed
 
 ---
 
@@ -120,7 +121,3 @@ When a UserOperation is broadcast, the ECDSA signature reveals the signer's publ
 **[FINDING-2a4] ECDSA-only has the simplest composability — Severity: Informational (positive)**
 
 Since ECDSA tolerates multiple signatures and is widely supported by existing tooling, the ECDSA-only instantiation avoids all the off-chain signature tensions that affect OTS-based designs. EIP-1271, permits, SIWE, and multisig all work with minimal friction. This is a significant practical advantage.
-
-## 3. Position
-
-The ECDSA-only instantiation is the simplest, cheapest, and most compatible design. It provides no post-quantum cryptographic guarantees — its quantum resistance is purely operational (time-bounded exposure). This makes it a strong near-term deployment option while the quantum threat remains distant, but it requires an explicit upgrade path to PQ primitives. The main design risk is the recovery key: if it is long-lived and ever exposed, it becomes the system's quantum-vulnerable weak link.

@@ -192,9 +192,3 @@ The most natural choice for EVM is **Keccak-256** (available as a precompile). S
 - 2x gas cost on EVM.
 
 **Recommendation**: Keccak-256 for gas efficiency. Document that the security claim relies on Keccak-256's second-preimage resistance at the `n`-byte truncation level.
-
-## 3. Position
-
-The PQ-only instantiation provides the strongest quantum resistance and the cleanest narrative (no classical cryptography in the critical path). It is the long-term target design.
-
-The primary challenge is that one-time signatures are at odds with transaction failures, retries, and off-chain signing needs.
