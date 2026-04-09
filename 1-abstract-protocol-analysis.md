@@ -2,7 +2,7 @@
 
 **Scope**: The rotation mechanism itself — primitive-agnostic. This analysis covers the system design independent of whether the signing slots are filled by ECDSA, WOTS+C, a hybrid, or any other scheme. Primitive-specific concerns are covered in the companion documents (2a, 2b, 2c).
 
-**Date**: 2026-04-08
+**Last updated**: 2026-04-09
 
 ---
 
