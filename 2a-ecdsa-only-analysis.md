@@ -8,7 +8,7 @@
 
 ## 1. Instantiation Summary
 
-- **Primary signer**: ECDSA on secp256k1. One key per transaction. Keys derived via BIP-44 (see [open-questions.md](open-questions.md) for more details).
+- **Primary signer**: ECDSA on secp256k1. One key per transaction.
 - **On-chain commitment**: Ethereum address (`address(keccak256(pubkey)[12:])`)
 - **Signature size**: 65 bytes (r, s, v)
 - **Verification**: `ecrecover` precompile

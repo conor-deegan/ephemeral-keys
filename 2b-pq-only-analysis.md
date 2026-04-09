@@ -34,7 +34,7 @@ In a single-target setting, 64-bit quantum security is the NIST Level 1 floor an
 
 In a multi-target setting with `L` active keys in the ecosystem, effective security is `64 - log2(L)` bits. For L = 2^20 (≈1 million active wallets), this is 44 bits. Whether this is concerning depends on the cost model for quantum queries — at current projected costs, 2^44 quantum hash evaluations remain infeasible.
 
-**Recommendation**: For a conservative long-term parameter choice, `n = 20` (160-bit classical / 80-bit quantum) provides meaningful margin at a signature cost of 356 bytes. For maximum conservatism, `n = 32` (256-bit classical / 128-bit quantum) at 548 bytes. This is an engineering decisions, see [open-questions.md](open-questions.md) for more details.
+**Recommendation**: For a conservative long-term parameter choice, `n = 20` (160-bit classical / 80-bit quantum) provides meaningful margin at a signature cost of 356 bytes. For maximum conservatism, `n = 32` (256-bit classical / 128-bit quantum) at 548 bytes. This is an engineering decision.
 
 ### 2.2 One-Time Use
 
@@ -54,7 +54,7 @@ The adversary can forge a signature for any message with digest `m` satisfying `
 
 **Without checksum**: For uniformly random digests, `E[min(d_i, d'_i)] ≈ 85`. The expected fraction of forgeable messages is `(171/256)^16 ≈ 0.0016` — roughly 0.16%, or 1 in 640 messages.
 
-**With checksum** (standard WOTS+): The checksum chains constrain forgery further. Increasing message digits (to satisfy `m_i >= min(d_i, d'_i)`) decreases the checksum value, which requires going *backward* in checksum chains — computationally infeasible. The adversary must find messages where the increased message digits are balanced such that checksum chain positions remain computable from known values. This reduces the forgeable fraction below 0.16%, though the exact bound depends on the checksum parameterisation (this will need more research, see [open-questions.md](open-questions.md) for more details).
+**With checksum** (standard WOTS+): The checksum chains constrain forgery further. Increasing message digits (to satisfy `m_i >= min(d_i, d'_i)`) decreases the checksum value, which requires going *backward* in checksum chains — computationally infeasible. The adversary must find messages where the increased message digits are balanced such that checksum chain positions remain computable from known values. This reduces the forgeable fraction below 0.16%, though the exact bound depends on the checksum parameterisation (this will need more research).
 
 **[FINDING-2b2] Two-signature leakage under WOTS+C enables non-trivial forgery — Severity: High**
 
@@ -65,7 +65,7 @@ Even with the checksum constraining the forgeable space, an adversary who observ
 2. The ability to construct a transaction whose digest falls in the forgeable region AND satisfies the checksum constraint
 3. The forged transaction to be valid on-chain (correct nonce, sufficient gas, etc.)
 
-Step 2 is feasible given enough grinding, though the checksum makes it harder than the naive 1-in-640 estimate suggests. The exact cost depends on parameters not yet specified - see [open-questions.md](open-questions.md) for more details.
+Step 2 is feasible given enough grinding, though the checksum makes it harder than the naive 1-in-640 estimate suggests. The exact cost depends on parameters not yet specified.
 
 **Mitigations** (in order of effectiveness):
 1. **Never produce two signatures at the same index**: Mark key as consumed at signing time. Burn the key on any failure.

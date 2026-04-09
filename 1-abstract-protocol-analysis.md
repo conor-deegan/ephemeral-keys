@@ -11,6 +11,7 @@
 The protocol is a key-rotation layer built on ERC-4337 Account Abstraction. It has three components:
 
 **On-chain (Smart Account)**:
+
 - Stores a commitment to the current authorised signer (e.g., an address, a public key hash, or a Merkle root — the exact form depends on the primitive)
 - Validates signatures against the current commitment
 - Executes the user's intended transaction
@@ -18,12 +19,14 @@ The protocol is a key-rotation layer built on ERC-4337 Account Abstraction. It h
 - (Optionally) maintains a record of spent keys
 
 **Off-chain (Wallet)**:
+
 - Holds long-term key material (seed/root key)
 - Derives ephemeral signing keys from a deterministic sequence
 - Tracks the current key index
 - Signs one transaction per key, then advances the index
 
 **Infrastructure (Bundler / EntryPoint)**:
+
 - Receives UserOperations from the wallet
 - Submits them to the ERC-4337 EntryPoint
 - EntryPoint calls `validateUserOp` then executes the call
@@ -42,11 +45,13 @@ The user's stable on-chain identity is the smart account address. The signer rot
 
 There are two approaches:
 
-| | Rotation in `validateUserOp` | Rotation in `execute` |
-|---|---|---|
-| Persistence guarantee | Validation-phase state changes persist even if execution reverts (ERC-4337 property) | If `execute` itself reverts, rotation does not occur |
-| Inner call failure | Rotation occurs regardless — correct behaviour | Must catch inner call failures to prevent rotation from being blocked by a reverting inner call |
-| Complexity | Simpler — rotation is unconditional | Must handle inner-call error propagation carefully |
+
+|                       | Rotation in `validateUserOp`                                                         | Rotation in `execute`                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Persistence guarantee | Validation-phase state changes persist even if execution reverts (ERC-4337 property) | If `execute` itself reverts, rotation does not occur                                            |
+| Inner call failure    | Rotation occurs regardless — correct behaviour                                       | Must catch inner call failures to prevent rotation from being blocked by a reverting inner call |
+| Complexity            | Simpler — rotation is unconditional                                                  | Must handle inner-call error propagation carefully                                              |
+
 
 **[FINDING-A1] Rotation in the validation phase is strictly safer — Severity: Informational**
 
@@ -72,16 +77,19 @@ This is not an attack that requires cryptographic sophistication — it requires
 
 There are four candidate consumption points:
 
-| Point | Meaning | Consequence |
-|---|---|---|
-| **Signing time** | Key is consumed when the wallet signs | Dropped transactions burn a key. Most conservative. |
-| **Broadcast time** | Key is consumed when the UserOperation enters the mempool | Same practical effect as signing time. |
+
+| Point              | Meaning                                                            | Consequence                                                                |
+| ------------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| **Signing time**   | Key is consumed when the wallet signs                              | Dropped transactions burn a key. Most conservative.                        |
+| **Broadcast time** | Key is consumed when the UserOperation enters the mempool          | Same practical effect as signing time.                                     |
 | **Inclusion time** | Key is consumed when the block containing the rotation is produced | Allows retry with the same key if not yet included. Risky for OTS schemes. |
-| **Finality time** | Key is consumed when the block is finalised | Allows retry until finality. Reorgs can re-expose a consumed key. |
+| **Finality time**  | Key is consumed when the block is finalised                        | Allows retry until finality. Reorgs can re-expose a consumed key.          |
+
 
 **[FINDING-A3] The only safe consumption point is signing time — Severity: High**
 
 For one-time signature schemes, any consumption point after signing creates a window where:
+
 1. The signature is broadcast (public key exposed)
 2. The transaction is not yet on-chain
 3. The user might resign with the same key (for retry, gas adjustment, etc.)
@@ -100,13 +108,14 @@ The general guidance is that before a signature is released from the signing dev
 The protocol has split state: the wallet tracks `currentIndex` (or some variant) locally, and the smart account stores the current signer commitment on-chain. Every effort should be made for these to be consistent.
 
 **Desynchronisation causes**:
+
 1. Wallet crash after signing but before updating local index
 2. Transaction dropped by bundler (local index advanced, on-chain state unchanged)
 3. Block reorg reverts a rotation (on-chain state reverts, local index does not)
 4. Multiple wallet instances (tabs, devices) racing to sign
 5. localStorage corruption or clearing
 
-**Recovery mechanism**: The wallet must be able to resynchronise by reading the on-chain signer commitment and scanning its derivation tree to find the matching index. This is O(n) in the number of past transactions (note, open question on derivation path from call on 9/04/26, see [open-questions.md](open-questions.md))
+**Recovery mechanism**: The wallet must be able to resynchronise by reading the on-chain signer commitment and scanning its derivation tree to find the matching index. This is O(n) in the number of past transactions.
 
 **[FINDING-A4] Resynchronisation requires the on-chain commitment to be deterministically matchable — Severity: Low**
 
@@ -117,16 +126,18 @@ The wallet must be able to compute `commitment(pk_i)` for arbitrary index `i` an
 **[FINDING-A5] Sequential key rotation inherently requires single-device signing — Severity: High (adoption constraint)**
 
 If two devices independently derive key `i` and both attempt to sign, one of two outcomes occurs:
+
 1. Both sign with key `i`: if the scheme is OTS, this creates a key-reuse vulnerability. If the scheme tolerates reuse (ECDSA), the first-included transaction rotates the signer, and the second becomes invalid.
 2. One device signs with key `i`, the other with key `i+1`: only key `i` matches the on-chain signer. The key `i+1` transaction fails.
 
-There is no resolution within the current design that allows concurrent multi-device signing without external coordination. This is a fundamental consequence of sequential key rotation. The design should document this constraint plainly - it will be a major factor in wallet UX and institutional adoption decisions. Note, open question on multi-device constraints on 9/04/26, see [open-questions.md](open-questions.md)
+There is no resolution within the current design that allows concurrent multi-device signing without external coordination. This is a fundamental consequence of sequential key rotation. The design should document this constraint plainly - it will be a major factor in wallet UX and institutional adoption decisions.
 
 ### 2.6 Mempool Exposure
 
 When a UserOperation is broadcast to the public mempool, the current signer's signature (and potentially the public key, depending on the scheme) is visible to all observers. This creates a time window between exposure and rotation (when the transaction is included on-chain).
 
 The severity of this exposure depends entirely on the primitive:
+
 - **ECDSA**: Public key is exposed. A quantum adversary with sufficient speed could derive the private key and front-run.
 - **WOTS+C**: Signature reveals chain values. But the key is one-time, and if the signature is included, the key is immediately rotated. An observer who records the signature gains nothing useful (the key is spent).
 - **Hybrid**: Both signatures are exposed. The WOTS+C signature is safe; the ECDSA component has the same quantum exposure as pure ECDSA.
@@ -172,6 +183,7 @@ Many protocols verify smart account signatures via EIP-1271 `isValidSignature`. 
 **[FINDING-A9] The protocol must define a non-consuming verification path for EIP-1271 — Severity: High**
 
 Without this:
+
 - Permit flows, SIWE, WalletConnect, and Safe composition fail
 - The smart account is incompatible with a significant portion of the Ethereum ecosystem
 
@@ -194,6 +206,7 @@ Non-standard interactions that expect a direct EOA signature (raw `ecrecover` fo
 **[FINDING-A10] Reorgs can re-expose a rotated key — Severity: Medium**
 
 If a block containing a rotation transaction is reorged out:
+
 1. The on-chain state reverts to the previous signer commitment
 2. The wallet's local index has already advanced (key consumed at signing time per A3)
 3. The previous key's signature was already broadcast publicly
