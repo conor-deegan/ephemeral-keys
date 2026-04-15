@@ -151,6 +151,14 @@ To avoid potentially catastrophic reuses of OTS, wallets should burn used privat
 | 128 | 20 | 140-bit  | 1270       | 1270          | ~266k        | 372B       |
 | 256 | 16 | 128-bit  | 2040       | 2040          | ~420k        | 308B       |
 
+### Multi-Wallet compatibility
+
+A WOTS+C wallet rotates signing keys after each use. 
+If two wallets share the same seed and derivation path, they generate identical key sequences. 
+Any independent advancement of the epoch counter on either wallet risks reusing the same one-time key, which breaks the scheme entirely.
+We developed a way to deal with this involving separate signers assigned to each wallet, derived from completely different derivation paths. 
+More details can be found in [Annex B](https://github.com/conor-deegan/ephemeral-keys/blob/cd-sec-analysis-1/protocol-spec-annex-b.md).
+
 ## ERC Compatibility
 
 ### ERC-4337 Conformance
@@ -172,7 +180,7 @@ The validation logic for both modes is additionally packaged as an ERC-7579 `IVa
 
 ### EIP-1271 Limitations
 
-Neither ECDSA nor WOTS+C mode implements EIP-1271. In the WOTS+C case this is a fundamental incompatibility: verifying a signature must rotate the key, making it a state-mutating operation that cannot be expressed as a view function. To overcome this it might be possible to use a statless backup signer (if available) for this scope too. In the ECDSA case it is a current limitation rather than a fundamental one. Applications requiring off-chain signature verification are not supported in either mode at this time.
+Neither ECDSA nor WOTS+C mode implements EIP-1271 directly. In the WOTS+C case this is a fundamental incompatibility: verifying a signature must rotate the key, making it a state-mutating operation that cannot be expressed as a view function. To overcome this it might be possible to use a statless backup signer (if available) for this scope too. In the ECDSA case it is a current limitation rather than a fundamental one. Applications requiring off-chain signature verification are not supported in either mode at this time. This topic is covered in detail in [Annex A](https://github.com/conor-deegan/ephemeral-keys/blob/cd-sec-analysis-1/protocol-spec-annex-a.md).
 
 ### ERC-7702 Relevance
 
