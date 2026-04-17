@@ -141,15 +141,15 @@ To avoid potentially catastrophic reuses of OTS, wallets should burn used privat
 
 ### Signature Size and Gas
 
-| w   | l  | Security | Target sum | Hash (verify) | Gas (verify) | Sig (blob) |
-|-----|----|----------|------------|---------------|--------------|------------|
-| 4   | 64 | 128-bit  | 96         | 96            | ~31k         | 1076B      |
-| 8   | 44 | 132-bit  | 154        | 154           | ~43k         | 756B       |
-| 16  | 32 | 128-bit  | 240        | 240           | ~60k         | 564B       |
-| 32  | 26 | 130-bit  | 403        | 403           | ~93k         | 468B       |
-| 64  | 22 | 132-bit  | 693        | 693           | ~151k        | 404B       |
-| 128 | 20 | 140-bit  | 1270       | 1270          | ~266k        | 372B       |
-| 256 | 16 | 128-bit  | 2040       | 2040          | ~420k        | 308B       |
+| w   | l  |   Security    | Target sum | Hash (verify) | Gas (verify) | Sig (blob) |
+|-----|----|---------------|------------|---------------|--------------|------------|
+| 4   | 64 | NIST Level 1  | 96         | 96            | ~31k         | 1076B      |
+| 8   | 44 | NIST Level 1  | 154        | 154           | ~43k         | 756B       |
+| 16  | 32 | NIST Level 1  | 240        | 240           | ~60k         | 564B       |
+| 32  | 26 | NIST Level 1  | 403        | 403           | ~93k         | 468B       |
+| 64  | 22 | NIST Level 1  | 693        | 693           | ~151k        | 404B       |
+| 128 | 20 | NIST Level 1  | 1270       | 1270          | ~266k        | 372B       |
+| 256 | 16 | NIST Level 1  | 2040       | 2040          | ~420k        | 308B       |
 
 ### Multi-Wallet compatibility
 
