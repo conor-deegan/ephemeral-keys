@@ -1,5 +1,9 @@
 # WOTS+C Parameter Security Review
 
+**Last updated**: 2026-04-22
+
+---
+
 ## Classical
 
 The WOTS+C security proof (Theorem B.2, Hülsing et al., 2022) reduces to EU-CMA security of the underlying WOTS+ scheme. The dominant reduction loss comes from guessing which of `l · (w−1)` chain positions the forger inverts. Approximate classical security: `128 − log₂(l · (w−1))` bits.
